@@ -10,6 +10,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
+from .memory import WIKI_DIR
+
 
 load_dotenv()
 
@@ -90,13 +92,21 @@ def load_markdown_sections(path: Path) -> list[Document]:
     return documents
 
 
+def iter_markdown_files(docs_dir: Path = DOCS_DIR, wiki_dir: Path | None = None) -> list[Path]:
+    resolved_wiki_dir = wiki_dir or WIKI_DIR
+    markdown_files = sorted(docs_dir.glob("*.md"))
+    if resolved_wiki_dir.exists():
+        markdown_files.extend(sorted(resolved_wiki_dir.glob("*.md")))
+    return markdown_files
+
+
 def build_index(docs_dir: Path = DOCS_DIR) -> tuple[int, int]:
     global vectorstore, files_indexed, sections_indexed
 
     vectorstore = None
     files_indexed = 0
     sections_indexed = 0
-    markdown_files = sorted(docs_dir.glob("*.md"))
+    markdown_files = iter_markdown_files(docs_dir)
     documents: list[Document] = []
 
     for markdown_path in markdown_files:

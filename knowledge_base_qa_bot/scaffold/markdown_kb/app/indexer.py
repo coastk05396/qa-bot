@@ -5,6 +5,8 @@ from dataclasses import dataclass
 import json
 from pathlib import Path
 
+from .memory import WIKI_DIR
+
 
 DOCS_DIR = Path(__file__).resolve().parents[3] / "docs"
 INDEX_PATH = Path(__file__).resolve().parents[3] / ".kb" / "index.json"
@@ -110,6 +112,14 @@ def parse_markdown(path: Path) -> list[Section]:
     return parsed_sections
 
 
+def iter_markdown_files(docs_dir: Path = DOCS_DIR, wiki_dir: Path | None = None) -> list[Path]:
+    resolved_wiki_dir = wiki_dir or WIKI_DIR
+    markdown_files = sorted(docs_dir.glob("*.md"))
+    if resolved_wiki_dir.exists():
+        markdown_files.extend(sorted(resolved_wiki_dir.glob("*.md")))
+    return markdown_files
+
+
 def write_index_json(index_path: Path = INDEX_PATH) -> None:
     index_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -159,7 +169,7 @@ def build_index(docs_dir: Path = DOCS_DIR) -> tuple[int, int]:
     avg_doc_len = 0.0
     files_indexed = 0
 
-    for markdown_path in sorted(docs_dir.glob("*.md")):
+    for markdown_path in iter_markdown_files(docs_dir):
         sections.extend(parse_markdown(markdown_path))
 
     rebuild_stats()

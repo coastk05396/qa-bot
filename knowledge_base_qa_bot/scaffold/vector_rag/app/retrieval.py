@@ -126,7 +126,7 @@ def _finalize_answer(raw_answer: object, ranked_chunks: list) -> str:
 
     normalized = answer.lower()
     if normalized.startswith(CANNOT_CONFIRM.lower()):
-        return _build_grounded_fallback(ranked_chunks)
+        return CANNOT_CONFIRM
 
     return answer
 

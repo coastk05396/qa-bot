@@ -75,7 +75,6 @@
 
     button,
     input,
-    select,
     textarea {
       font: inherit;
     }
@@ -148,21 +147,41 @@
     .brand-row {
       display: grid;
       grid-template-columns: minmax(0, 640px) minmax(320px, 420px);
-      justify-content: center;
-      gap: clamp(32px, 4vw, 64px);
-      align-items: center;
+      column-gap: clamp(32px, 4vw, 64px);
+      align-items: start;
       width: min(100%, 1120px);
       margin: 0 auto;
     }
 
-    .brand {
-      min-width: 0;
-      padding-top: 2px;
-      align-self: center;
+    .brand-left {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .brand h1 {
-      margin: 2px 0 0;
+    .brand-right {
+      display: flex;
+      flex-direction: column;
+      /* push pill down so its top edge aligns with the h1 top edge
+         (eyebrow ~16px + gap 14px = 30px) */
+      padding-top: 30px;
+      align-self: start;
+    }
+
+    .brand-eyebrow {
+      min-width: 0;
+    }
+
+    .brand-header {
+      min-width: 0;
+    }
+
+    .brand-copy {
+      min-width: 0;
+    }
+
+    .brand-header h1 {
+      margin: 0;
       font-family: "Iowan Old Style", "Palatino Linotype", serif;
       font-size: clamp(2rem, 3.1vw, 3.15rem);
       letter-spacing: -0.03em;
@@ -170,8 +189,8 @@
       text-wrap: balance;
     }
 
-    .brand p {
-      margin: 6px 0 0;
+    .brand-copy p {
+      margin: 0;
       color: var(--muted);
       max-width: 38rem;
       line-height: 1.45;
@@ -179,24 +198,207 @@
       text-wrap: pretty;
     }
 
+    .memory-rack {
+      margin-top: 4px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 16px 18px;
+      width: 100%;
+      height: fit-content;
+      border-radius: 22px;
+      border: 1px solid rgba(126, 111, 89, 0.18);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(232, 219, 198, 0.74), transparent 46%),
+        linear-gradient(135deg, rgba(255, 251, 245, 0.98), rgba(245, 239, 230, 0.96));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84), 0 14px 34px rgba(79, 74, 66, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .memory-rack::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0));
+      transform: translateX(-38%);
+      pointer-events: none;
+    }
+
+    .memory-rack-copy {
+      min-width: 0;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      position: relative;
+      z-index: 1;
+    }
+
+    .memory-rack-label {
+      color: #7c6a4e;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .memory-rack-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .memory-rack-title {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .memory-rack-copy strong {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 1.05rem;
+      color: #2d261f;
+      letter-spacing: -0.02em;
+    }
+
+    .session-id-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(126, 111, 89, 0.14);
+      color: #6f5f48;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-variant-numeric: tabular-nums;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    }
+
+    .memory-rack-flow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: #8a7453;
+      font-size: 0.77rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .memory-flow-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(168, 139, 92, 0.18);
+      background: rgba(255, 255, 255, 0.7);
+      color: #866c49;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84);
+    }
+
+    .memory-rack-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      width: 100%;
+      margin-top: 6px;
+      min-width: 0;
+      align-content: start;
+      justify-content: stretch;
+      position: relative;
+      z-index: 1;
+    }
+
+    .memory-btn {
+      min-height: 52px;
+      width: 100%;
+      padding: 0 16px;
+      border-radius: 16px;
+      border: 1px solid rgba(126, 111, 89, 0.16);
+      background: rgba(255, 255, 255, 0.8);
+      color: #2f2a22;
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      box-shadow: 0 8px 18px rgba(79, 74, 66, 0.07);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+      white-space: nowrap;
+    }
+
+    .memory-btn-label {
+      display: inline-block;
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+
+    .memory-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(79, 74, 66, 0.12);
+    }
+
+    .memory-btn[data-memory-action="compact"] {
+      background: linear-gradient(135deg, rgba(250, 246, 236, 0.98), rgba(242, 232, 213, 0.96));
+      border-color: rgba(168, 139, 92, 0.24);
+      color: #6d5330;
+    }
+
+    .memory-btn[data-memory-action="dream"] {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 248, 250, 0.98));
+      border-color: rgba(203, 213, 225, 0.92);
+      color: #4b5563;
+    }
+
+    .memory-btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.88), 0 0 0 6px rgba(116, 106, 85, 0.18), 0 14px 26px rgba(79, 74, 66, 0.12);
+    }
+
+    .memory-btn:disabled {
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      opacity: 0.62;
+    }
+
     .brand-actions {
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: stretch;
       min-width: 0;
       width: 100%;
       max-width: 420px;
-      gap: 12px;
-      align-self: center;
+      gap: 0;
+      /* push provider card down so its top aligns with the paragraph top
+         (h1 ~49px + gap 14px − pill ~34px = 29px) */
+      margin-top: 30px;
     }
 
     .topbar-controls {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: 8px;
+      gap: 12px;
       width: 100%;
-      padding: 8px;
+      margin-top: 0;
+      padding: 12px;
       border-radius: 16px;
       border: 1px solid rgba(226, 232, 240, 0.96);
       background: rgba(255, 255, 255, 0.9);
@@ -223,7 +425,7 @@
     }
 
     .surface-pill {
-      display: inline-flex;
+      display: flex; /* block-level flex so width: 100% fills the column */
       align-items: center;
       gap: 8px;
       padding: 8px 12px;
@@ -233,17 +435,14 @@
       border: 1px solid var(--panel-border-strong);
       white-space: nowrap;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-      justify-content: flex-start;
-      justify-self: start;
       width: 100%;
-      max-width: 100%;
     }
 
     .topbar-control {
       min-width: 0;
       width: 100%;
       display: grid;
-      gap: 4px;
+      gap: 6px;
     }
 
     .settings-card {
@@ -412,6 +611,11 @@
       box-shadow: 0 4px 12px rgba(99, 102, 241, 0.14);
     }
 
+    .provider-btn:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.88), 0 0 0 5px rgba(100, 116, 139, 0.18);
+    }
+
     .provider-subline {
       display: block;
       font-size: 0.68rem;
@@ -437,7 +641,7 @@
 
     .field label {
       display: block;
-      margin-bottom: 0;
+      margin-bottom: 2px;
       color: #64748b;
       font-size: 0.75rem;
       font-weight: 600;
@@ -670,7 +874,7 @@
       position: relative;
       overflow: hidden;
       transform: translateY(8px);
-      opacity: 0;
+      opacity: 1;
       animation: fadeUp 0.42s ease forwards;
       background: rgba(255, 253, 249, 0.96);
       border: 1px solid rgba(107, 102, 92, 0.2);
@@ -1175,17 +1379,46 @@
 
       .brand-row {
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: 0;
         width: 100%;
+      }
+
+      .brand-left {
+        gap: 12px;
+      }
+
+      .brand-right {
+        padding-top: 16px;
+        gap: 12px;
       }
 
       .brand-actions {
         align-items: stretch;
         min-width: 100%;
+        margin-top: 0;
+        gap: 0;
+      }
+
+      .memory-rack {
+        grid-template-columns: 1fr;
+        padding: 14px;
+      }
+
+      .memory-rack-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .memory-rack-head {
+        align-items: flex-start;
+      }
+
+      .memory-rack-copy p {
+        max-width: none;
       }
 
       .topbar-controls {
         width: 100%;
+        margin-top: 0;
         padding: 8px;
       }
 
@@ -1234,6 +1467,18 @@
         width: auto;
       }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .memory-rack::after,
+      .memory-btn,
+      .provider-btn {
+        transition: none;
+      }
+
+      .memory-btn:hover {
+        transform: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1242,41 +1487,75 @@
     <header class="topbar">
       <div class="topbar-inner">
         <div class="brand-row">
-          <div class="brand">
-            <span class="eyebrow">Paper &amp; Soft Workspace</span>
-            <h1>Knowledge Base Q&amp;A</h1>
-            <p>Grounded answers for your knowledge base, with source-backed responses and a calm workspace for review.</p>
-          </div>
-          <div class="brand-actions">
+
+          <!-- LEFT COLUMN -->
+          <div class="brand-left">
+            <div class="brand-eyebrow">
+              <span class="eyebrow">Paper &amp; Soft Workspace</span>
+            </div>
+            <div class="brand-header">
+              <h1>Knowledge Base Q&amp;A</h1>
+            </div>
+            <div class="brand-copy">
+              <p>Grounded answers for your knowledge base, with source-backed responses and a calm workspace for review.</p>
+            </div>
+            <div class="memory-rack" aria-label="Memory controls">
+              <div class="memory-rack-copy">
+                <span class="memory-rack-label">Memory Lane</span>
+                <div class="memory-rack-head">
+                  <strong class="memory-rack-title">Session <span id="session-id-label" class="session-id-chip">Pending</span></strong>
+                  <div class="memory-rack-flow" aria-hidden="true">
+                    <span class="memory-flow-pill">L1 Logs</span>
+                    <span>&rarr;</span>
+                    <span class="memory-flow-pill">L3 Wiki</span>
+                  </div>
+                </div>
+              </div>
+              <div class="memory-rack-actions">
+                <button id="compact-memory-btn" class="memory-btn" type="button" data-memory-action="compact">
+                  <span class="memory-btn-label">Compact Session</span>
+                </button>
+                <button id="dream-memory-btn" class="memory-btn" type="button" data-memory-action="dream">
+                  <span class="memory-btn-label">Dream to Wiki</span>
+                </button>
+              </div>
+            </div>
+          </div><!-- /.brand-left -->
+
+          <!-- RIGHT COLUMN (padding-top pushes pill to h1 level) -->
+          <div class="brand-right">
             <div id="connection-pill" class="surface-pill">
               <span id="connection-dot" class="surface-dot is-neutral" aria-hidden="true"></span>
               <span id="connection-label">Ready for questions</span>
             </div>
-            <div class="topbar-controls" aria-label="Workspace controls">
-              <div class="field provider-field topbar-control">
-                <label>Provider</label>
-                <div class="provider-status-card" aria-live="polite">
-                  <div class="provider-status-head">
-                    <div class="provider-status-main">
-                      <span id="provider-status-dot" class="provider-status-dot is-neutral" aria-hidden="true"></span>
-                      <div class="provider-status-title">
-                        <strong>Gemini</strong>
-                        <span id="provider-model-label" class="provider-model">gemini-2.5-flash</span>
+            <div class="brand-actions">
+              <div class="topbar-controls" aria-label="Workspace controls">
+                <div class="field provider-field topbar-control">
+                  <label>Provider</label>
+                  <div class="provider-status-card" aria-live="polite">
+                    <div class="provider-status-head">
+                      <div class="provider-status-main">
+                        <span id="provider-status-dot" class="provider-status-dot is-neutral" aria-hidden="true"></span>
+                        <div class="provider-status-title">
+                          <strong>Gemini</strong>
+                          <span id="provider-model-label" class="provider-model">gemini-2.5-flash</span>
+                        </div>
                       </div>
+                      <span id="provider-status-announcer" class="sr-only">Checking API key status…</span>
                     </div>
-                    <span id="provider-status-announcer" class="sr-only">Checking API key status…</span>
+                  </div>
+                </div>
+                <div class="field topbar-control">
+                  <label>Retrieval mode</label>
+                  <div class="provider-toggle" role="group" aria-label="Retrieval mode switch">
+                    <button type="button" class="provider-btn is-active" data-retrieval-mode="markdown" aria-pressed="true">Markdown KB</button>
+                    <button type="button" class="provider-btn" data-retrieval-mode="vector" aria-pressed="false">Vector RAG</button>
                   </div>
                 </div>
               </div>
-              <div class="field topbar-control">
-                <label>Retrieval mode</label>
-                <div class="provider-toggle" role="group" aria-label="Retrieval mode switch">
-                  <button type="button" class="provider-btn is-active" data-retrieval-mode="markdown" aria-pressed="true">Markdown KB</button>
-                  <button type="button" class="provider-btn" data-retrieval-mode="vector" aria-pressed="false">Vector RAG</button>
-                </div>
-              </div>
-            </div>
-          </div>
+            </div><!-- /.brand-actions -->
+          </div><!-- /.brand-right -->
+
         </div>
       </div>
     </header>
@@ -1288,7 +1567,6 @@
             <strong>Conversation</strong>
           </div>
           <div class="conversation-header-tools">
-            <span>Grounded answers and sources appear together.</span>
             <button id="clear-history-btn" class="clear-history-btn" type="button" aria-label="Clear conversation history" title="Clear conversation history">
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 6h18"></path>
@@ -1318,8 +1596,8 @@
         <div class="composer-wrap">
           <div class="composer-shell">
             <form id="composer-form" class="composer-form">
-              <label class="sr-only" for="query">Ask a grounded question</label>
-              <textarea id="query" class="composer-input" name="query" rows="1" autocomplete="off" placeholder="Ask a grounded question about your documents or knowledge base…"></textarea>
+              <label class="sr-only" for="query">Ask a question</label>
+              <textarea id="query" class="composer-input" name="query" rows="1" autocomplete="off" placeholder="Ask about your documents or knowledge base…"></textarea>
               <div class="composer-actions">
                 <button id="chat-btn" class="btn btn-primary" type="submit">Ask Question</button>
               </div>
@@ -1351,11 +1629,15 @@
     const toastRegionEl = document.getElementById("toast-region");
     const sourcePreviewEl = document.getElementById("source-preview");
     const clearHistoryBtnEl = document.getElementById("clear-history-btn");
+    const compactMemoryBtnEl = document.getElementById("compact-memory-btn");
+    const dreamMemoryBtnEl = document.getElementById("dream-memory-btn");
+    const sessionIdLabelEl = document.getElementById("session-id-label");
     const promptCardEls = Array.from(document.querySelectorAll("[data-prompt]"));
     const retrievalButtonEls = Array.from(document.querySelectorAll("[data-retrieval-mode]"));
 
     const currentUrl = new URL(window.location.href);
     const currentOrigin = currentUrl.origin;
+    const SESSION_STORAGE_KEY = "qa-bot-session-id";
     const localBackendPorts = {
       markdown: "8000",
       vector: "8001",
@@ -1366,6 +1648,7 @@
       messages: [],
       selectedSource: null,
       retrievalMode: "markdown",
+      sessionId: "",
       providerStatus: {
         checked: false,
         apiKeyProvided: null,
@@ -1377,6 +1660,43 @@
         return window.crypto.randomUUID();
       }
       return `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function createSessionId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function renderSessionId() {
+      sessionIdLabelEl.textContent = state.sessionId ? state.sessionId.slice(0, 8) : "Pending";
+      sessionIdLabelEl.title = state.sessionId || "No active session";
+    }
+
+    function setSessionId(nextSessionId) {
+      state.sessionId = nextSessionId;
+      try {
+        window.localStorage.setItem(SESSION_STORAGE_KEY, nextSessionId);
+      } catch {
+      }
+      renderSessionId();
+      return nextSessionId;
+    }
+
+    function ensureSessionId() {
+      try {
+        const storedValue = window.localStorage.getItem(SESSION_STORAGE_KEY);
+        if (storedValue) {
+          return setSessionId(storedValue);
+        }
+      } catch {
+      }
+      return setSessionId(createSessionId());
+    }
+
+    function rotateSessionId() {
+      return setSessionId(createSessionId());
     }
 
     function getBaseUrl(mode = state.retrievalMode) {
@@ -1465,6 +1785,8 @@
       state.isBusy = isBusy;
       chatBtnEl.disabled = isBusy;
       clearHistoryBtnEl.disabled = isBusy;
+      compactMemoryBtnEl.disabled = isBusy;
+      dreamMemoryBtnEl.disabled = isBusy;
       queryEl.disabled = isBusy;
       connectionLabelEl.textContent = isBusy ? message : getReadyLabel();
     }
@@ -1527,7 +1849,7 @@
       if (!state.messages.length) {
         const emptyState = document.createElement("div");
         emptyState.className = "empty-state";
-        emptyState.innerHTML = "<strong>No conversation yet</strong><p>Choose one of the starter prompts above or ask your own grounded question below. Retrieved sources will attach to each assistant answer so you can inspect the evidence without leaving the flow.</p>";
+        emptyState.innerHTML = "<strong>No conversation yet</strong>";
         chatHistoryEl.appendChild(emptyState);
         return;
       }
@@ -1684,6 +2006,83 @@
       renderMessages();
     }
 
+    function deriveLogStatus(question, answer, sources) {
+      const normalizedAnswer = String(answer || "").toLowerCase();
+      const defaultQuestions = new Set([
+        "Summarize the refund policy and include the expected timeline.",
+        "What shipping options are available, and what should customers expect for delivery timing?",
+        "What account-help steps can the bot confirm from the knowledge base?",
+      ]);
+
+      if (defaultQuestions.has(String(question || "").trim())) {
+        return "DEFAULT";
+      }
+      if (!Array.isArray(sources) || !sources.length || normalizedAnswer.startsWith("i cannot confirm from the knowledge base.") || normalizedAnswer.includes("not been indexed")) {
+        return "REJECTED";
+      }
+      return "VALID";
+    }
+
+    function buildSessionLogEntries() {
+      const entries = [];
+
+      for (let index = 0; index < state.messages.length; index += 1) {
+        const userMessage = state.messages[index];
+        const assistantMessage = state.messages[index + 1];
+
+        if (!userMessage || userMessage.role !== "user") {
+          continue;
+        }
+        if (!assistantMessage || assistantMessage.role !== "assistant" || assistantMessage.pending || assistantMessage.error || !assistantMessage.content) {
+          continue;
+        }
+
+        entries.push({
+          question: userMessage.content,
+          answer: assistantMessage.content,
+          status: deriveLogStatus(userMessage.content, assistantMessage.content, assistantMessage.sources),
+        });
+      }
+
+      return entries;
+    }
+
+    async function resetSessionHistory({
+      busyLabel,
+      successTitle,
+      successMessage,
+      errorTitle,
+    }) {
+      if (state.isBusy) {
+        return;
+      }
+
+      const previousSessionId = state.sessionId;
+      const logEntries = buildSessionLogEntries();
+      setBusy(true, busyLabel);
+
+      try {
+        await requestJson("/api/memory/compact", {
+          retrievalMode: state.retrievalMode,
+          method: "POST",
+          body: JSON.stringify({ session_id: previousSessionId, entries: logEntries }),
+        });
+        clearConversationHistory();
+        rotateSessionId();
+        showToast({
+          title: successTitle,
+          message: typeof successMessage === "function" ? successMessage(previousSessionId) : successMessage,
+        });
+      } catch (error) {
+        showToast({
+          ...buildFriendlyError(error, errorTitle),
+          tone: "error",
+        });
+      } finally {
+        setBusy(false, "Ready for questions");
+      }
+    }
+
     function showToast({ title, message, tone = "default" }) {
       const toast = document.createElement("div");
       toast.className = `toast ${tone}`;
@@ -1794,7 +2193,53 @@
       return {
         query,
         provider: "gemini",
+        session_id: state.sessionId,
       };
+    }
+
+    async function compactMemorySession() {
+      await resetSessionHistory({
+        busyLabel: "Compacting session memory...",
+        successTitle: "Session compacted",
+        successMessage: (previousSessionId) => `Started a fresh session after compacting ${previousSessionId.slice(0, 8)}.`,
+        errorTitle: "Compaction unavailable",
+      });
+    }
+
+    async function clearConversationSession() {
+      await resetSessionHistory({
+        busyLabel: "Clearing conversation history...",
+        successTitle: "Conversation cleared",
+        successMessage: (previousSessionId) => `Cleared the workspace and started a fresh session after saving ${previousSessionId.slice(0, 8)}.`,
+        errorTitle: "Clear unavailable",
+      });
+    }
+
+    async function dreamMemory() {
+      if (state.isBusy) {
+        return;
+      }
+
+      setBusy(true, "Dreaming log memory...");
+
+      try {
+        const payload = await requestJson("/api/memory/dream", {
+          retrievalMode: state.retrievalMode,
+          method: "POST",
+          body: JSON.stringify({ provider: "gemini" }),
+        });
+        showToast({
+          title: "Dream complete",
+          message: `${payload.processed_session_ids.length} sessions archived, ${payload.kept_blocks} log blocks retained, ${payload.deleted_files} log files removed.`,
+        });
+      } catch (error) {
+        showToast({
+          ...buildFriendlyError(error, "Dream unavailable"),
+          tone: "error",
+        });
+      } finally {
+        setBusy(false, "Ready for questions");
+      }
     }
 
     async function fallbackChat(query, assistantMessage) {
@@ -1888,18 +2333,29 @@
     });
 
     for (const promptCardEl of promptCardEls) {
-      promptCardEl.addEventListener("click", () => {
+      promptCardEl.addEventListener("click", async () => {
         applyPromptSuggestion(promptCardEl.dataset.prompt || "");
+        await askQuestion();
       });
     }
 
-    clearHistoryBtnEl.addEventListener("click", () => {
-      clearConversationHistory();
+    clearHistoryBtnEl.addEventListener("click", async () => {
+      await clearConversationSession();
     });
 
+    compactMemoryBtnEl.addEventListener("click", async () => {
+      await compactMemorySession();
+    });
+
+    dreamMemoryBtnEl.addEventListener("click", async () => {
+      await dreamMemory();
+    });
+
+    ensureSessionId();
     setBusy(false, "Ready for questions");
     renderProviderStatus();
     renderRetrievalToggle();
+    renderSessionId();
     autoResizeComposer();
     renderMessages();
     loadBackendStatus();

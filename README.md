@@ -1,100 +1,76 @@
 # qa-bot
 
-This repository contains independent prototype exercises. There is no repo-wide app entrypoint or single test runner. Work inside the relevant project folder.
-
-## Projects
-
-- `knowledge_base_qa_bot/` - FastAPI knowledge-base Q&A bot with two guided retrieval strategies:
-  - `scaffold/markdown_kb/` for Markdown section indexing + BM25
-  - `scaffold/vector_rag/` for chunking + FAISS vector retrieval
-- `chatgpt_task/` - MCP stdio task scheduler with SQLite persistence and tool routing
-
-## Knowledge Base Q&A Bot
-
-This is the main web app in the repo right now. Both guided tracks expose the same API:
-
-- `GET /health`
-- `POST /index`
-- `POST /chat`
-
-### Gemini API Key
-
-Both guided tracks use Gemini for answer generation.
-
-You can provide the key in either of these ways:
-
-1. Export it in your shell:
-
 ```bash
 export GEMINI_API_KEY="your-gemini-api-key"
 ```
 
-2. Or place it in a `.env` file that the app can load, for example:
+Run from the repo root with `make`:
 
 ```bash
-GEMINI_API_KEY=your-gemini-api-key
+make markdown
+make vector
+make run-both
+```
+## Memory Flow
+
+The app uses three memory levels:
+
+- `L1`: compacted raw Q+A logs in `knowledge_base_qa_bot/.kb/logs/YYYY-MM-DD.md`
+- `L2`: active in-browser session buffer, kept in the frontend until you click `Compact Session` or the trash button
+- `L3`: dreamed wiki memory in `knowledge_base_qa_bot/.kb/wiki/index.md`
+
+## Diagram
+
+```mermaid
+flowchart LR
+    classDef outer fill:#fffdf8,stroke:#5f6f7a,stroke-width:2px,stroke-dasharray: 8 6,color:#1f2933
+    classDef step fill:#fffefb,stroke:#7a8a96,stroke-width:1.5px,color:#1f2933
+
+    U[User asks question]:::step
+
+    subgraph L2[L2 Session Memory]
+        direction TB
+        B1[Hold Q+A in frontend buffer]:::step
+        B2[Wait for Compact Session or trash]:::step
+    end
+
+    subgraph L1[L1 Log Memory]
+        direction TB
+        C1[Flush Q+A into .kb/logs]:::step
+        C2[Store raw session history]:::step
+    end
+
+    subgraph L3[L3 Wiki Memory]
+        direction TB
+        D1[Group repeated VALID questions]:::step
+        D2[LLM writes structured question + answer]:::step
+        D3[Save wiki entry in .kb/wiki/index.md]:::step
+    end
+
+    I[Index rebuild]:::step
+    R[Future retrieval answers from wiki]:::step
+
+    style L2 fill:#f7fbff,stroke:#5c7c99,stroke-width:2px,stroke-dasharray: 8 6
+    style L1 fill:#f7fcf7,stroke:#658a65,stroke-width:2px,stroke-dasharray: 8 6
+    style L3 fill:#fbf7ff,stroke:#7b66a1,stroke-width:2px,stroke-dasharray: 8 6
+
+    U --> B1
+    B1 --> B2
+    B2 -->|flush session| C1
+    C1 --> C2
+    C2 -->|Dream to Wiki| D1
+    D1 --> D2
+    D2 --> D3
+    D3 --> I
+    I --> R
 ```
 
-Recommended location: keep the `.env` in the scaffold you are running, or export the variable before starting the server.
+## APIs
 
-### Run Markdown KB
+Both backends expose the same endpoints:
 
-```bash
-cd knowledge_base_qa_bot/scaffold/markdown_kb
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-
-### Run Vector RAG
-
-```bash
-cd knowledge_base_qa_bot/scaffold/vector_rag
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8001
-```
-
-### Quick Verification
-
-After the server starts:
-
-```bash
-curl http://127.0.0.1:8000/health
-curl -X POST http://127.0.0.1:8000/index
-curl -X POST http://127.0.0.1:8000/chat \
-  -H "Content-Type: application/json" \
-  -d '{"query":"What shipping options are available?","provider":"gemini"}'
-```
-
-If you run Vector RAG on port `8001`, use `http://127.0.0.1:8001` instead.
-
-### Notes
-
-- Retrieval indices are persisted under `.kb/`
-- Re-run `POST /index` after changing `docs/*.md`
-- The shared browser UI is served by both retrieval backends
-
-## ChatGPT Task Scheduler
-
-```bash
-cd chatgpt_task/scaffold
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python -m app.mcp_server
-```
-
-Inspector:
-
-```bash
-npx @modelcontextprotocol/inspector python -m app.mcp_server
-```
-
-## Working Style
-
-- Keep changes local to the active exercise
-- Prefer the scaffold folders for implementation work
-- Use project-specific README and `PROMPT.md` files for deeper exercise details
+- `GET /health`
+- `POST /index`
+- `POST /chat`
+- `POST /api/memory/compact`
+- `POST /api/memory/dream`
