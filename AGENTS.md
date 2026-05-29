@@ -1,4 +1,4 @@
-# Copilot Instructions
+# Instructions
 
 This repository contains three independent prototype exercises. Work in the relevant subproject root and its `scaffold/` directory; there is no shared app entrypoint or repo-wide test runner.
 
