@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# SQLite
+*.db
+
+# Generated knowledge base indexes
+.kb/
+**/.kb/
+
+# Instructor-only answer keys
+knowledge_base_qa_bot/answers/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
