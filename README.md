@@ -5,8 +5,8 @@ This repository contains independent prototype exercises. There is no repo-wide 
 ## Projects
 
 - `knowledge_base_qa_bot/` - FastAPI knowledge-base Q&A bot with two guided retrieval strategies:
-	- `scaffold/markdown_kb/` for Markdown section indexing + BM25
-	- `scaffold/vector_rag/` for chunking + FAISS vector retrieval
+  - `scaffold/markdown_kb/` for Markdown section indexing + BM25
+  - `scaffold/vector_rag/` for chunking + FAISS vector retrieval
 - `chatgpt_task/` - MCP stdio task scheduler with SQLite persistence and tool routing
 
 ## Knowledge Base Q&A Bot
@@ -65,8 +65,8 @@ After the server starts:
 curl http://127.0.0.1:8000/health
 curl -X POST http://127.0.0.1:8000/index
 curl -X POST http://127.0.0.1:8000/chat \
-	-H "Content-Type: application/json" \
-	-d '{"query":"What shipping options are available?","provider":"gemini"}'
+  -H "Content-Type: application/json" \
+  -d '{"query":"What shipping options are available?","provider":"gemini"}'
 ```
 
 If you run Vector RAG on port `8001`, use `http://127.0.0.1:8001` instead.

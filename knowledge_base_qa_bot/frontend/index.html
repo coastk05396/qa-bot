@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f9f7f2">
+  <title>Knowledge Base Q&amp;A Bot</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Aptos", "Segoe UI Variable Text", "Segoe UI", sans-serif;
+      --bg: #f9f7f2;
+      --bg-accent: rgba(182, 169, 138, 0.16);
+      --panel: rgba(255, 255, 255, 0.88);
+      --panel-strong: #ffffff;
+      --panel-border: rgba(71, 85, 105, 0.18);
+      --panel-border-strong: rgba(71, 85, 105, 0.68);
+      --text: #37352f;
+      --text-strong: #0f172a;
+      --muted: #6b7280;
+      --muted-strong: #334155;
+      --brand: #6b665c;
+      --brand-strong: #4f4a42;
+      --brand-soft: rgba(107, 102, 92, 0.08);
+      --assistant: #ffffff;
+      --user: #ffffff;
+      --chip: #eef2f7;
+      --chip-text: #1f2937;
+      --success: #7a8a61;
+      --warning: #a97743;
+      --danger: #a85645;
+      --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 2px 10px rgba(0, 0, 0, 0.05);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --shell-width: 1080px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, var(--bg-accent), transparent 26%),
+        radial-gradient(circle at 85% 18%, rgba(160, 146, 117, 0.08), transparent 24%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(249, 247, 242, 0)),
+        var(--bg);
+      color: var(--text);
+      -webkit-tap-highlight-color: rgba(79, 74, 66, 0.08);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -10% -5%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.48), transparent 20%),
+        radial-gradient(circle at 82% 78%, rgba(206, 193, 165, 0.16), transparent 18%);
+      opacity: 0.8;
+      animation: ambientDrift 18s ease-in-out infinite alternate;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    input,
+    select,
+    textarea {
+      min-width: 0;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: 12px;
+      transform: translateY(-160%);
+      background: var(--panel-strong);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--shadow-md);
+      z-index: 50;
+      text-decoration: none;
+    }
+
+    .skip-link:focus-visible {
+      transform: translateY(0);
+    }
+
+    .app-shell {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 14px 16px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-inner {
+      width: min(var(--shell-width), 100%);
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--panel-border-strong);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      padding: 14px 16px;
+    }
+
+    .brand-row,
+    .control-row,
+    .url-row,
+    .action-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .brand-row {
+      display: grid;
+      grid-template-columns: minmax(0, 640px) minmax(320px, 420px);
+      justify-content: center;
+      gap: clamp(32px, 4vw, 64px);
+      align-items: center;
+      width: min(100%, 1120px);
+      margin: 0 auto;
+    }
+
+    .brand {
+      min-width: 0;
+      padding-top: 2px;
+      align-self: center;
+    }
+
+    .brand h1 {
+      margin: 2px 0 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: clamp(2rem, 3.1vw, 3.15rem);
+      letter-spacing: -0.03em;
+      line-height: 0.98;
+      text-wrap: balance;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      max-width: 38rem;
+      line-height: 1.45;
+      font-size: 0.96rem;
+      text-wrap: pretty;
+    }
+
+    .brand-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: stretch;
+      min-width: 0;
+      width: 100%;
+      max-width: 420px;
+      gap: 12px;
+      align-self: center;
+    }
+
+    .topbar-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      width: 100%;
+      padding: 8px;
+      border-radius: 16px;
+      border: 1px solid rgba(226, 232, 240, 0.96);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted-strong);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: rgba(79, 74, 66, 0.3);
+      flex: 0 0 auto;
+    }
+
+    .surface-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #f3eee3;
+      color: var(--muted-strong);
+      border-radius: 999px;
+      border: 1px solid var(--panel-border-strong);
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      justify-content: flex-start;
+      justify-self: start;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .topbar-control {
+      min-width: 0;
+      width: 100%;
+      display: grid;
+      gap: 4px;
+    }
+
+    .settings-card {
+      width: 100%;
+      padding: 8px 10px 10px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(15, 23, 42, 0.14);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .settings-card-header {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .settings-card-header strong {
+      font-size: 0.85rem;
+      color: #111827;
+      letter-spacing: 0.01em;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 280px) minmax(0, 280px);
+      gap: 8px;
+      align-items: end;
+    }
+
+    .provider-field {
+      min-width: 0;
+    }
+
+    .topbar-control .provider-status-card {
+      min-height: 44px;
+      width: 100%;
+    }
+
+    .topbar-control .provider-toggle {
+      min-height: 44px;
+      align-items: stretch;
+      width: 100%;
+    }
+
+    .topbar-control .provider-btn {
+      min-height: 36px;
+    }
+
+    .provider-status-card {
+      min-height: 40px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(226, 232, 240, 0.98);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 0 rgba(15, 23, 42, 0.03);
+      display: flex;
+      align-items: center;
+    }
+
+    .provider-status-head {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .provider-status-main {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      width: 100%;
+    }
+
+    .provider-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 0 3px rgba(168, 86, 69, 0.1);
+      flex: 0 0 auto;
+      align-self: center;
+    }
+
+    .provider-status-dot.is-ready,
+    .surface-dot.is-ready {
+      background: var(--success);
+      box-shadow: 0 0 0 3px rgba(122, 138, 97, 0.14);
+    }
+
+    .provider-status-dot.is-neutral,
+    .surface-dot.is-neutral {
+      background: #b8b1a4;
+      box-shadow: 0 0 0 4px rgba(184, 177, 164, 0.18);
+    }
+
+    .provider-status-title {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 1px;
+      flex-wrap: nowrap;
+      min-width: 0;
+    }
+
+    .provider-status-title strong {
+      font-size: 0.84rem;
+      color: #111827;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      line-height: 1.1;
+    }
+
+    .provider-model {
+      color: #64748b;
+      font-size: 0.64rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+      line-height: 1.1;
+    }
+
+    .provider-toggle {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3px;
+      padding: 3px;
+      border-radius: 12px;
+      border: 1px solid rgba(226, 232, 240, 0.98);
+      background: #f8fafc;
+    }
+
+    .provider-btn {
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 9px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: #374151;
+      font-size: 0.84rem;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .provider-btn[data-retrieval-mode="markdown"].is-active {
+      background: #edf3e4;
+      border-color: #d7dfc6;
+      color: #55613a;
+      font-weight: 760;
+      box-shadow: 0 4px 12px rgba(85, 97, 58, 0.14);
+    }
+
+    .provider-btn[data-retrieval-mode="vector"].is-active {
+      background: #eef2ff;
+      border-color: rgba(199, 210, 254, 0.9);
+      color: #4338ca;
+      font-weight: 760;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.14);
+    }
+
+    .provider-subline {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      opacity: 0.9;
+      line-height: 1.1;
+    }
+
+    .surface-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #b8b1a4;
+      box-shadow: 0 0 0 4px rgba(184, 177, 164, 0.18);
+      flex: 0 0 auto;
+    }
+
+    .field {
+      min-width: 180px;
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 0;
+      color: #64748b;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.015em;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1.5px solid var(--panel-border-strong);
+      background: var(--panel-strong);
+      color: var(--text-strong);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .field input:focus-visible,
+    .field select:focus-visible,
+    .composer-input:focus-visible,
+    .btn:focus-visible,
+    .source-badge:focus-visible,
+    .icon-btn:focus-visible,
+    .prompt-card:focus-visible {
+      border-color: rgba(15, 23, 42, 0.42);
+      box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.12);
+      outline: none;
+    }
+
+    .action-row {
+      margin-top: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 13px;
+      border-radius: 12px;
+      transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #6b665c, #4f4a42);
+      color: #fffdf8;
+      box-shadow: 0 8px 18px rgba(55, 53, 47, 0.12);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 12px 24px rgba(55, 53, 47, 0.16);
+    }
+
+    .btn-secondary {
+      background: var(--panel-strong);
+      color: var(--text-strong);
+      border: 1.5px solid var(--panel-border-strong);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-strong);
+      border: 1px dashed rgba(55, 53, 47, 0.12);
+    }
+
+    .chat-shell {
+      width: min(var(--shell-width), calc(100% - 32px));
+      margin: 0 auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 14px 0 0;
+      gap: 12px;
+    }
+
+    .conversation-shell {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1.5px solid var(--panel-border-strong);
+      border-radius: 32px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+
+    .prompt-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .prompt-card {
+      text-align: left;
+      width: 100%;
+      min-height: 92px;
+      padding: 12px;
+      border-radius: 24px;
+      border: 1px solid var(--panel-border-strong);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 241, 233, 0.88));
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .prompt-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.34) 45%, transparent 80%);
+      transform: translateX(-130%);
+      transition: transform 0.7s ease;
+    }
+
+    .prompt-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(55, 53, 47, 0.09);
+      border-color: rgba(79, 74, 66, 0.16);
+    }
+
+    .prompt-card:hover::before {
+      transform: translateX(130%);
+    }
+
+    .prompt-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.98rem;
+    }
+
+    .prompt-card span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+
+    .conversation-shell {
+      padding: 14px 16px 0;
+    }
+
+    .conversation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 2px 2px 10px;
+    }
+
+    .conversation-header-main {
+      min-width: 0;
+    }
+
+    .conversation-header-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .conversation-header strong {
+      font-family: "Iowan Old Style", "Palatino Linotype", serif;
+      font-size: 1.32rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .conversation-header span {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .clear-history-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid rgba(71, 85, 105, 0.24);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--muted-strong);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+
+    .clear-history-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(168, 86, 69, 0.34);
+      color: var(--danger);
+    }
+
+    .chat-history {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 4px 0 10px;
+    }
+
+    .message-row {
+      display: flex;
+    }
+
+    .message-row.user {
+      justify-content: flex-end;
+    }
+
+    .message-row.assistant,
+    .message-row.system {
+      justify-content: flex-start;
+    }
+
+    .message-card {
+      width: min(820px, 96%);
+      border-radius: 28px;
+      padding: 14px 16px 13px;
+      box-shadow: 0 10px 24px rgba(55, 53, 47, 0.06);
+      position: relative;
+      overflow: hidden;
+      transform: translateY(8px);
+      opacity: 0;
+      animation: fadeUp 0.42s ease forwards;
+      background: rgba(255, 253, 249, 0.96);
+      border: 1px solid rgba(107, 102, 92, 0.2);
+    }
+
+    .message-card.user {
+      background: linear-gradient(180deg, rgba(246, 241, 233, 0.98), rgba(238, 231, 218, 0.94));
+      border-color: rgba(107, 102, 92, 0.28);
+      color: var(--text-strong);
+      border-bottom-right-radius: 14px;
+    }
+
+    .message-card.assistant,
+    .message-card.system {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 239, 232, 0.94));
+      border-color: rgba(107, 102, 92, 0.2);
+      border-bottom-left-radius: 14px;
+    }
+
+    .message-card.user .message-meta,
+    .message-card.user .message-status {
+      color: rgba(79, 74, 66, 0.72);
+    }
+
+    .message-card.user .message-role,
+    .message-card.user .message-body {
+      color: var(--text-strong);
+    }
+
+    .message-card.assistant .message-meta,
+    .message-card.system .message-meta,
+    .message-card.assistant .message-status,
+    .message-card.system .message-status {
+      color: rgba(51, 65, 85, 0.7);
+    }
+
+    .message-card.assistant .message-role,
+    .message-card.system .message-role,
+    .message-card.assistant .message-body,
+    .message-card.system .message-body {
+      color: var(--text-strong);
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .message-role {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .message-role-icon {
+      width: 18px;
+      height: 18px;
+      color: currentColor;
+      flex: 0 0 auto;
+    }
+
+    .message-role-text {
+      line-height: 1;
+    }
+
+    .message-role-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+      padding: 0 8px;
+      border-radius: 999px;
+      border: 1px solid #e4e4e7;
+      background: #f4f4f5;
+      color: #52525b;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .message-role-tag--markdown {
+      border-color: #d7dfc6;
+      background: #edf3e4;
+      color: #55613a;
+    }
+
+    .message-role-tag--vector {
+      border-color: rgba(199, 210, 254, 0.78);
+      background: #eef2ff;
+      color: #4338ca;
+    }
+
+    .message-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .message-status.pending::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--brand);
+      box-shadow: 0 0 0 6px rgba(107, 102, 92, 0.09);
+      animation: pulse 1.4s infinite;
+      flex: 0 0 auto;
+    }
+
+    .message-body {
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .message-body p {
+      margin: 0 0 12px;
+    }
+
+    .message-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-body ul {
+      margin: 0 0 12px;
+      padding-left: 20px;
+    }
+
+    .message-body ul:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-body li + li {
+      margin-top: 4px;
+    }
+
+    .message-card.assistant .message-body {
+      font-size: 1.02rem;
+    }
+
+    .message-body.empty {
+      color: var(--muted);
+    }
+
+    .message-body.error {
+      color: var(--danger);
+    }
+
+    .skeleton {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .skeleton-line {
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(190, 183, 169, 0.14), rgba(190, 183, 169, 0.3), rgba(190, 183, 169, 0.14));
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+
+    .skeleton-line:nth-child(1) {
+      width: 92%;
+    }
+
+    .skeleton-line:nth-child(2) {
+      width: 78%;
+    }
+
+    .skeleton-line:nth-child(3) {
+      width: 84%;
+    }
+
+    .sources-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .source-badge {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 2px 8px;
+      align-items: start;
+      min-width: 0;
+      max-width: min(100%, 340px);
+      padding: 10px 12px;
+      border-radius: 18px;
+      background: var(--chip);
+      color: var(--chip-text);
+      border: 1px solid var(--panel-border-strong);
+      transition: transform 0.18s ease, background 0.18s ease;
+      text-align: left;
+    }
+
+    .source-badge:hover {
+      transform: translateY(-1px);
+      background: #ebe4d7;
+    }
+
+    .source-main {
+      min-width: 0;
+    }
+
+    .source-name {
+      display: block;
+      font-weight: 700;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .source-heading {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted-strong);
+      font-size: 0.76rem;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .source-score {
+      grid-row: 1 / span 2;
+      font-size: 0.76rem;
+      opacity: 0.82;
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      margin: 4px 0 8px;
+      padding: 22px 20px;
+      text-align: left;
+      border: 1px dashed var(--panel-border);
+      border-radius: var(--radius-xl);
+      background: rgba(255, 255, 255, 0.52);
+      color: var(--muted);
+    }
+
+    .empty-state strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .empty-state p {
+      margin: 0;
+      max-width: 56ch;
+      line-height: 1.65;
+    }
+
+    .composer-wrap {
+      padding: 10px 0 0;
+      margin-top: auto;
+      border-top: 1px solid rgba(71, 85, 105, 0.18);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.78));
+    }
+
+    .composer-shell {
+      width: 100%;
+      margin: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0 0 28px 28px;
+      box-shadow: none;
+      backdrop-filter: none;
+      padding: 10px 0 0;
+    }
+
+    .composer-form {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .composer-input {
+      flex: 1;
+      min-height: 52px;
+      max-height: 180px;
+      resize: none;
+      border-radius: 24px;
+      border: 1.5px solid var(--panel-border-strong);
+      padding: 12px 14px;
+      background: var(--panel-strong);
+      color: var(--text-strong);
+      outline: none;
+      line-height: 1.55;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .composer-input::placeholder {
+      color: #8a8478;
+    }
+
+    .composer-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .composer-hint {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .provider-warning {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(168, 86, 69, 0.28);
+      background: rgba(168, 86, 69, 0.08);
+      color: var(--danger);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .provider-warning.is-visible {
+      display: block;
+    }
+
+    .toast-region {
+      position: fixed;
+      top: 22px;
+      right: 22px;
+      z-index: 40;
+      display: grid;
+      gap: 12px;
+      width: min(360px, calc(100vw - 28px));
+    }
+
+    .toast {
+      background: var(--panel-strong);
+      border: 1px solid var(--panel-border);
+      border-left: 4px solid var(--brand);
+      border-radius: 22px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .toast.error {
+      border-left-color: var(--danger);
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .toast p {
+      margin: 0;
+      color: var(--muted-strong);
+      line-height: 1.45;
+    }
+
+    .source-preview {
+      position: fixed;
+      right: 22px;
+      bottom: 126px;
+      z-index: 35;
+      width: min(420px, calc(100vw - 28px));
+      background: var(--panel-strong);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      padding: 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .source-preview.hidden {
+      display: none;
+    }
+
+    .source-preview-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .source-preview h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .source-preview p,
+    .source-preview pre {
+      margin: 0;
+      color: var(--muted-strong);
+    }
+
+    .source-preview pre {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f5f1e8;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted-strong);
+      border: 1px solid var(--panel-border);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition-duration: 0s !important;
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 0.55;
+      }
+      50% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes ambientDrift {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+      to {
+        transform: translate3d(0, -1.4%, 0) scale(1.03);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        padding: 14px 14px 0;
+      }
+
+      .brand-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        width: 100%;
+      }
+
+      .brand-actions {
+        align-items: stretch;
+        min-width: 100%;
+      }
+
+      .topbar-controls {
+        width: 100%;
+        padding: 8px;
+      }
+
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-card-header {
+        margin-bottom: 6px;
+      }
+
+      .topbar-inner,
+      .conversation-shell {
+        border-radius: 24px;
+      }
+
+      .prompt-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .conversation-shell {
+        padding: 14px 14px 0;
+      }
+
+      .composer-wrap {
+        padding-top: 8px;
+      }
+
+      .composer-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .composer-actions {
+        width: 100%;
+        align-items: stretch;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .source-preview {
+        right: 14px;
+        left: 14px;
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to Conversation</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand-row">
+          <div class="brand">
+            <span class="eyebrow">Paper &amp; Soft Workspace</span>
+            <h1>Knowledge Base Q&amp;A</h1>
+            <p>Grounded answers for your knowledge base, with source-backed responses and a calm workspace for review.</p>
+          </div>
+          <div class="brand-actions">
+            <div id="connection-pill" class="surface-pill">
+              <span id="connection-dot" class="surface-dot is-neutral" aria-hidden="true"></span>
+              <span id="connection-label">Ready for questions</span>
+            </div>
+            <div class="topbar-controls" aria-label="Workspace controls">
+              <div class="field provider-field topbar-control">
+                <label>Provider</label>
+                <div class="provider-status-card" aria-live="polite">
+                  <div class="provider-status-head">
+                    <div class="provider-status-main">
+                      <span id="provider-status-dot" class="provider-status-dot is-neutral" aria-hidden="true"></span>
+                      <div class="provider-status-title">
+                        <strong>Gemini</strong>
+                        <span id="provider-model-label" class="provider-model">gemini-2.5-flash</span>
+                      </div>
+                    </div>
+                    <span id="provider-status-announcer" class="sr-only">Checking API key status…</span>
+                  </div>
+                </div>
+              </div>
+              <div class="field topbar-control">
+                <label>Retrieval mode</label>
+                <div class="provider-toggle" role="group" aria-label="Retrieval mode switch">
+                  <button type="button" class="provider-btn is-active" data-retrieval-mode="markdown" aria-pressed="true">Markdown KB</button>
+                  <button type="button" class="provider-btn" data-retrieval-mode="vector" aria-pressed="false">Vector RAG</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="chat-shell">
+      <section class="conversation-shell" aria-label="Conversation history">
+        <div class="conversation-header">
+          <div class="conversation-header-main">
+            <strong>Conversation</strong>
+          </div>
+          <div class="conversation-header-tools">
+            <span>Grounded answers and sources appear together.</span>
+            <button id="clear-history-btn" class="clear-history-btn" type="button" aria-label="Clear conversation history" title="Clear conversation history">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M8 6V4.8c0-.9.7-1.6 1.6-1.6h4.8c.9 0 1.6.7 1.6 1.6V6"></path>
+                <path d="M6.5 6l.8 12.1c.1 1.1 1 1.9 2.1 1.9h5.2c1.1 0 2-.8 2.1-1.9L17.5 6"></path>
+                <path d="M10 10.2v5.6"></path>
+                <path d="M14 10.2v5.6"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="prompt-strip" aria-label="Starter prompts">
+          <button class="prompt-card" type="button" data-prompt="Summarize the refund policy and include the expected timeline.">
+            <strong>Summarize Refund Policy</strong>
+            <span>Quick grounded answer with timing and conditions.</span>
+          </button>
+          <button class="prompt-card" type="button" data-prompt="What shipping options are available, and what should customers expect for delivery timing?">
+            <strong>Compare Shipping Options</strong>
+            <span>Useful for multi-part operational questions.</span>
+          </button>
+          <button class="prompt-card" type="button" data-prompt="What account-help steps can the bot confirm from the knowledge base?">
+            <strong>Audit Account Coverage</strong>
+            <span>See what the current docs can and cannot support.</span>
+          </button>
+        </div>
+        <section id="chat-history" class="chat-history" aria-live="polite"></section>
+        <div class="composer-wrap">
+          <div class="composer-shell">
+            <form id="composer-form" class="composer-form">
+              <label class="sr-only" for="query">Ask a grounded question</label>
+              <textarea id="query" class="composer-input" name="query" rows="1" autocomplete="off" placeholder="Ask a grounded question about your documents or knowledge base…"></textarea>
+              <div class="composer-actions">
+                <button id="chat-btn" class="btn btn-primary" type="submit">Ask Question</button>
+              </div>
+            </form>
+            <div id="provider-warning" class="provider-warning">No Gemini API key provided. Add GEMINI_API_KEY to your .env file.</div>
+            <div class="composer-hint">
+              <span>Press Enter to send. Shift+Enter for a new line.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <aside id="source-preview" class="source-preview hidden" aria-live="polite"></aside>
+  <div id="toast-region" class="toast-region" aria-live="assertive" aria-atomic="true"></div>
+
+  <script>
+    const queryEl = document.getElementById("query");
+    const chatHistoryEl = document.getElementById("chat-history");
+    const chatBtnEl = document.getElementById("chat-btn");
+    const composerFormEl = document.getElementById("composer-form");
+    const connectionDotEl = document.getElementById("connection-dot");
+    const connectionLabelEl = document.getElementById("connection-label");
+    const providerModelLabelEl = document.getElementById("provider-model-label");
+    const providerStatusDotEl = document.getElementById("provider-status-dot");
+    const providerStatusAnnouncerEl = document.getElementById("provider-status-announcer");
+    const providerWarningEl = document.getElementById("provider-warning");
+    const toastRegionEl = document.getElementById("toast-region");
+    const sourcePreviewEl = document.getElementById("source-preview");
+    const clearHistoryBtnEl = document.getElementById("clear-history-btn");
+    const promptCardEls = Array.from(document.querySelectorAll("[data-prompt]"));
+    const retrievalButtonEls = Array.from(document.querySelectorAll("[data-retrieval-mode]"));
+
+    const currentUrl = new URL(window.location.href);
+    const currentOrigin = currentUrl.origin;
+    const localBackendPorts = {
+      markdown: "8000",
+      vector: "8001",
+    };
+
+    const state = {
+      isBusy: false,
+      messages: [],
+      selectedSource: null,
+      retrievalMode: "markdown",
+      providerStatus: {
+        checked: false,
+        apiKeyProvided: null,
+      },
+    };
+
+    function createId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") {
+        return window.crypto.randomUUID();
+      }
+      return `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function getBaseUrl(mode = state.retrievalMode) {
+      const resolvedMode = mode === "vector" ? "vector" : "markdown";
+
+      if (!["localhost", "127.0.0.1"].includes(currentUrl.hostname)) {
+        return currentOrigin;
+      }
+
+      const backendUrl = new URL(currentOrigin);
+      backendUrl.port = localBackendPorts[resolvedMode];
+      return backendUrl.origin;
+    }
+
+    function getActiveProviderLabel() {
+      return "Gemini";
+    }
+
+    function getRetrievalModeLabel() {
+      return state.retrievalMode === "vector" ? "Vector RAG" : "Markdown KB";
+    }
+
+    function getRetrievalModeTone(value) {
+      const normalizedValue = String(value || "").toLowerCase();
+      if (normalizedValue.includes("vector")) {
+        return "vector";
+      }
+      if (normalizedValue.includes("markdown")) {
+        return "markdown";
+      }
+      return "markdown";
+    }
+
+    function setStatusTone(isReady, isNeutral = false) {
+      for (const element of [connectionDotEl, providerStatusDotEl]) {
+        element.classList.toggle("is-ready", Boolean(isReady));
+        element.classList.toggle("is-neutral", Boolean(isNeutral));
+      }
+    }
+
+    function renderProviderStatus() {
+      const { checked, apiKeyProvided } = state.providerStatus;
+
+      if (!checked) {
+        setStatusTone(false, true);
+        providerStatusAnnouncerEl.textContent = "Checking API key status…";
+        providerWarningEl.classList.remove("is-visible");
+        return;
+      }
+
+      if (apiKeyProvided) {
+        setStatusTone(true, false);
+        providerStatusAnnouncerEl.textContent = "API key provided";
+        providerWarningEl.classList.remove("is-visible");
+        return;
+      }
+
+      setStatusTone(false, false);
+      providerStatusAnnouncerEl.textContent = "No API key provided";
+      providerWarningEl.classList.add("is-visible");
+    }
+
+    function renderRetrievalToggle() {
+      for (const buttonEl of retrievalButtonEls) {
+        const isActive = buttonEl.dataset.retrievalMode === state.retrievalMode;
+        buttonEl.classList.toggle("is-active", isActive);
+        buttonEl.setAttribute("aria-pressed", String(isActive));
+      }
+    }
+
+    function describeCurrentBackend() {
+      return `${getActiveProviderLabel()} · ${getRetrievalModeLabel()}`;
+    }
+
+    function getReadyLabel() {
+      if (!state.providerStatus.checked) {
+        return `Checking Gemini · ${getRetrievalModeLabel()}`;
+      }
+      if (!state.providerStatus.apiKeyProvided) {
+        return `Gemini key missing · ${getRetrievalModeLabel()}`;
+      }
+      return `Connected to ${describeCurrentBackend()}`;
+    }
+
+    function setBusy(isBusy, message) {
+      state.isBusy = isBusy;
+      chatBtnEl.disabled = isBusy;
+      clearHistoryBtnEl.disabled = isBusy;
+      queryEl.disabled = isBusy;
+      connectionLabelEl.textContent = isBusy ? message : getReadyLabel();
+    }
+
+    function autoResizeComposer() {
+      queryEl.style.height = "auto";
+      queryEl.style.height = `${Math.min(queryEl.scrollHeight, 180)}px`;
+    }
+
+    function applyPromptSuggestion(prompt) {
+      queryEl.value = prompt;
+      autoResizeComposer();
+      queryEl.focus();
+    }
+
+    function normalizeSources(rawSources) {
+      if (!Array.isArray(rawSources)) {
+        return [];
+      }
+
+      return rawSources
+        .filter(Boolean)
+        .map((source) => ({
+          source: source.source || "Document",
+          heading: source.heading || "Section",
+          score: Number.isFinite(Number(source.score)) ? Number(source.score) : null,
+          content: source.content || "",
+        }));
+    }
+
+    function dedupeSources(sources) {
+      const seen = new Set();
+      return sources.filter((source) => {
+        const key = `${source.source}::${source.heading}`;
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function createMessage(role, content, extra = {}) {
+      return {
+        id: createId(),
+        role,
+        content,
+        sources: [],
+        pending: false,
+        statusText: "",
+        error: false,
+        retrievalTag: "",
+        ...extra,
+      };
+    }
+
+    function renderMessages() {
+      chatHistoryEl.innerHTML = "";
+
+      if (!state.messages.length) {
+        const emptyState = document.createElement("div");
+        emptyState.className = "empty-state";
+        emptyState.innerHTML = "<strong>No conversation yet</strong><p>Choose one of the starter prompts above or ask your own grounded question below. Retrieved sources will attach to each assistant answer so you can inspect the evidence without leaving the flow.</p>";
+        chatHistoryEl.appendChild(emptyState);
+        return;
+      }
+
+      for (const message of state.messages) {
+        const row = document.createElement("article");
+        row.className = `message-row ${message.role}`;
+
+        const card = document.createElement("div");
+        card.className = `message-card ${message.role}`;
+
+        const meta = document.createElement("div");
+        meta.className = "message-meta";
+
+        const roleLabel = document.createElement("span");
+        roleLabel.className = "message-role";
+        if (message.role === "assistant") {
+          const retrievalTone = getRetrievalModeTone(message.retrievalTag);
+          const retrievalTag = message.retrievalTag ? `<span class="message-role-tag message-role-tag--${retrievalTone}">${escapeHtml(message.retrievalTag)}</span>` : "";
+          roleLabel.innerHTML = `<svg class="message-role-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="10" height="9" rx="2"></rect><path d="M12 4v4"></path><path d="M9.5 4h5"></path><circle cx="10" cy="12.5" r="0.8" fill="currentColor" stroke="none"></circle><circle cx="14" cy="12.5" r="0.8" fill="currentColor" stroke="none"></circle><path d="M10 15h4"></path><path d="M7 10H5.5"></path><path d="M18.5 10H17"></path></svg><span class="message-role-text">QA Bot</span>${retrievalTag}`;
+        } else {
+          roleLabel.textContent = message.role === "user" ? "You" : "System";
+        }
+
+        const status = document.createElement("span");
+        status.className = `message-status${message.pending ? " pending" : ""}`;
+        status.textContent = message.statusText || (message.pending ? "Working..." : "");
+
+        meta.appendChild(roleLabel);
+        meta.appendChild(status);
+        card.appendChild(meta);
+
+        const body = document.createElement("div");
+        body.className = "message-body";
+        if (!message.content && message.pending) {
+          body.classList.add("empty");
+          body.textContent = "Retrieving grounded context...";
+        } else if (message.role === "assistant" && !message.error) {
+          body.innerHTML = renderMessageMarkdown(message.content || "");
+        } else {
+          body.textContent = message.content || "";
+        }
+        if (message.error) {
+          body.classList.add("error");
+        }
+        card.appendChild(body);
+
+        if (message.pending && !message.content) {
+          const skeleton = document.createElement("div");
+          skeleton.className = "skeleton";
+          for (let index = 0; index < 3; index += 1) {
+            const line = document.createElement("div");
+            line.className = "skeleton-line";
+            skeleton.appendChild(line);
+          }
+          card.appendChild(skeleton);
+        }
+
+        if (message.sources && message.sources.length) {
+          const sourcesRow = document.createElement("div");
+          sourcesRow.className = "sources-row";
+          for (const source of message.sources) {
+            const badge = document.createElement("button");
+            badge.type = "button";
+            badge.className = "source-badge";
+            badge.innerHTML = `<span class="source-main"><span class="source-name">${escapeHtml(source.source)}</span><span class="source-heading">${escapeHtml(source.heading)}</span></span>${source.score !== null ? `<span class="source-score">${source.score.toFixed(2)}</span>` : ""}`;
+            badge.addEventListener("click", () => {
+              state.selectedSource = source;
+              renderSourcePreview();
+            });
+            sourcesRow.appendChild(badge);
+          }
+          card.appendChild(sourcesRow);
+        }
+
+        row.appendChild(card);
+        chatHistoryEl.appendChild(row);
+      }
+
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      });
+    }
+
+    function renderSourcePreview() {
+      const source = state.selectedSource;
+      if (!source) {
+        sourcePreviewEl.classList.add("hidden");
+        sourcePreviewEl.innerHTML = "";
+        return;
+      }
+
+      sourcePreviewEl.classList.remove("hidden");
+      sourcePreviewEl.innerHTML = `
+        <div class="source-preview-header">
+          <div>
+            <h3>${escapeHtml(source.source)}</h3>
+            <p>${escapeHtml(source.heading)}${source.score !== null ? ` · score ${source.score.toFixed(2)}` : ""}</p>
+          </div>
+          <button type="button" id="close-source-preview" class="icon-btn" aria-label="Close source preview">×</button>
+        </div>
+        <p>Selected context used to ground the answer.</p>
+        <pre>${escapeHtml(source.content || "No excerpt was provided for this source.")}</pre>
+      `;
+      document.getElementById("close-source-preview").addEventListener("click", () => {
+        state.selectedSource = null;
+        renderSourcePreview();
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderInlineMarkdown(value) {
+      return value
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/__(.+?)__/g, "<strong>$1</strong>");
+    }
+
+    function renderMessageMarkdown(value) {
+      const escaped = escapeHtml(value || "").replace(/\r\n/g, "\n").trim();
+      if (!escaped) {
+        return "";
+      }
+
+      const blocks = escaped.split(/\n{2,}/).map((block) => block.trim()).filter(Boolean);
+
+      return blocks.map((block) => {
+        const lines = block.split("\n").map((line) => line.trim()).filter(Boolean);
+        const isList = lines.length > 0 && lines.every((line) => /^[-*]\s+/.test(line));
+
+        if (isList) {
+          const items = lines
+            .map((line) => line.replace(/^[-*]\s+/, ""))
+            .map((line) => `<li>${renderInlineMarkdown(line)}</li>`)
+            .join("");
+          return `<ul>${items}</ul>`;
+        }
+
+        return `<p>${lines.map((line) => renderInlineMarkdown(line)).join("<br>")}</p>`;
+      }).join("");
+    }
+
+    function clearConversationHistory() {
+      state.messages = [];
+      state.selectedSource = null;
+      renderSourcePreview();
+      renderMessages();
+    }
+
+    function showToast({ title, message, tone = "default" }) {
+      const toast = document.createElement("div");
+      toast.className = `toast ${tone}`;
+      toast.innerHTML = `<strong>${escapeHtml(title)}</strong><p>${escapeHtml(message)}</p>`;
+      toastRegionEl.appendChild(toast);
+      window.setTimeout(() => {
+        toast.remove();
+      }, 4600);
+    }
+
+    function buildFriendlyError(error, fallbackTitle) {
+      const detail = `${error?.detail || error?.message || ""}`.toLowerCase();
+      if (detail.includes("gemini_api_key") || detail.includes("google_api_key") || detail.includes("api key")) {
+        return {
+          title: fallbackTitle,
+          message: "The backend is missing its Gemini API key. Add GEMINI_API_KEY to the server .env file, then retry.",
+        };
+      }
+
+      if (detail.includes("models/") && detail.includes("not found")) {
+        return {
+          title: fallbackTitle,
+          message: "The configured Gemini model is not available for this API key. Switch to a supported model such as gemini-2.0-flash and retry.",
+        };
+      }
+
+      if (detail.includes("spending cap") || detail.includes("resourceexhausted") || (error?.status === 429)) {
+        return {
+          title: fallbackTitle,
+          message: "The Gemini project has exceeded its monthly spending cap. Increase the spend cap in Google AI Studio or use a different billing-enabled project.",
+        };
+      }
+
+      if (error?.name === "TypeError") {
+        return {
+          title: fallbackTitle,
+          message: "The selected backend could not be reached. Check the base URL and make sure the API server is running.",
+        };
+      }
+
+      if (error?.status >= 500) {
+        return {
+          title: fallbackTitle,
+          message: "The backend ran into an internal error while handling that request. Please retry after checking the server logs.",
+        };
+      }
+
+      return {
+        title: fallbackTitle,
+        message: "The request could not be completed. Verify the backend is indexed and reachable, then try again.",
+      };
+    }
+
+    async function createHttpError(response) {
+      const raw = await response.text();
+      let payload = {};
+      try {
+        payload = raw ? JSON.parse(raw) : {};
+      } catch {
+        payload = { detail: raw };
+      }
+
+      const error = new Error(payload.detail || `HTTP ${response.status}`);
+      error.status = response.status;
+      error.detail = payload.detail || raw;
+      return error;
+    }
+
+    async function requestJson(path, options = {}) {
+      const response = await fetch(`${getBaseUrl(options.retrievalMode)}${path}`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {}),
+        },
+        ...options,
+      });
+      if (!response.ok) {
+        throw await createHttpError(response);
+      }
+      const raw = await response.text();
+      return raw ? JSON.parse(raw) : {};
+    }
+
+    async function loadBackendStatus() {
+      try {
+        const payload = await requestJson("/health", {
+          retrievalMode: state.retrievalMode,
+        });
+        state.providerStatus.checked = true;
+        state.providerStatus.apiKeyProvided = Boolean(payload.api_key_provided);
+        if (payload.chat_model) {
+          providerModelLabelEl.textContent = String(payload.chat_model).replace(/^models\//, "");
+        }
+      } catch {
+        state.providerStatus.checked = false;
+        state.providerStatus.apiKeyProvided = null;
+        providerStatusAnnouncerEl.textContent = "Unable to verify API key status";
+        setStatusTone(false, true);
+      } finally {
+        renderProviderStatus();
+        if (!state.isBusy) {
+          connectionLabelEl.textContent = getReadyLabel();
+        }
+      }
+    }
+
+    function buildChatPayload(query) {
+      return {
+        query,
+        provider: "gemini",
+      };
+    }
+
+    async function fallbackChat(query, assistantMessage) {
+      const payload = await requestJson("/chat", {
+        retrievalMode: state.retrievalMode,
+        method: "POST",
+        body: JSON.stringify(buildChatPayload(query)),
+      });
+      assistantMessage.content = payload.answer || "No answer returned.";
+      assistantMessage.sources = normalizeSources(payload.sources);
+      assistantMessage.pending = false;
+      assistantMessage.statusText = "Answer complete";
+    }
+
+    async function askQuestion() {
+      const query = queryEl.value.trim();
+      if (!query || state.isBusy) {
+        return;
+      }
+
+      const userMessage = createMessage("user", query, { statusText: "Sent" });
+      const assistantMessage = createMessage("assistant", "", {
+        pending: true,
+        statusText: "Retrieving grounded context...",
+        retrievalTag: getRetrievalModeLabel(),
+      });
+
+      state.messages.push(userMessage, assistantMessage);
+      state.selectedSource = null;
+      renderMessages();
+      renderSourcePreview();
+
+      queryEl.value = "";
+      autoResizeComposer();
+      setBusy(true, "Retrieving grounded context...");
+
+      try {
+        await fallbackChat(query, assistantMessage);
+
+        if (!assistantMessage.content) {
+          assistantMessage.content = "I could not produce an answer for that question.";
+          assistantMessage.error = true;
+        }
+
+        assistantMessage.pending = false;
+        assistantMessage.statusText = "Answer complete";
+      } catch (error) {
+        await loadBackendStatus();
+        assistantMessage.pending = false;
+        assistantMessage.error = true;
+        assistantMessage.content = "I could not complete that answer just now.";
+        assistantMessage.sources = [];
+        assistantMessage.statusText = "Request failed";
+        showToast({
+          ...buildFriendlyError(error, "Answer unavailable"),
+          tone: "error",
+        });
+      } finally {
+        setBusy(false, "Ready for questions");
+        renderMessages();
+      }
+    }
+
+    composerFormEl.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await askQuestion();
+    });
+
+    queryEl.addEventListener("input", autoResizeComposer);
+    queryEl.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        await askQuestion();
+      }
+    });
+
+    for (const retrievalButtonEl of retrievalButtonEls) {
+      retrievalButtonEl.addEventListener("click", async () => {
+        state.retrievalMode = retrievalButtonEl.dataset.retrievalMode || "markdown";
+        renderRetrievalToggle();
+        connectionLabelEl.textContent = getReadyLabel();
+        await loadBackendStatus();
+      });
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.selectedSource) {
+        state.selectedSource = null;
+        renderSourcePreview();
+      }
+    });
+
+    for (const promptCardEl of promptCardEls) {
+      promptCardEl.addEventListener("click", () => {
+        applyPromptSuggestion(promptCardEl.dataset.prompt || "");
+      });
+    }
+
+    clearHistoryBtnEl.addEventListener("click", () => {
+      clearConversationHistory();
+    });
+
+    setBusy(false, "Ready for questions");
+    renderProviderStatus();
+    renderRetrievalToggle();
+    autoResizeComposer();
+    renderMessages();
+    loadBackendStatus();
+  </script>
+</body>
+</html>
