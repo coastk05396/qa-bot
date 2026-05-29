@@ -6,10 +6,11 @@ VECTOR_DIR := $(KB_DIR)/scaffold/vector_rag
 MARKDOWN_PORT ?= 8000
 VECTOR_PORT ?= 8001
 
-.PHONY: help markdown vector run-both stop-both test-markdown test-vector health
+.PHONY: help install markdown vector run-both stop-both test-markdown test-vector health
 
 help:
 	@echo "Targets:"
+	@echo "  make install       Install dependencies for both backends (.venv/requirements)"
 	@echo "  make markdown      Start the Markdown KB backend on port $(MARKDOWN_PORT)"
 	@echo "  make vector        Start the Vector RAG backend on port $(VECTOR_PORT)"
 	@echo "  make run-both      Start both backends and stop both on Ctrl+C"
@@ -17,6 +18,13 @@ help:
 	@echo "  make test-markdown Run markdown_kb tests"
 	@echo "  make test-vector   Run vector_rag tests"
 	@echo "  make health        Check both health endpoints"
+
+install:
+	@echo "🚀 Setting up Markdown KB environment..."
+	cd $(MARKDOWN_DIR) && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+	@echo "🚀 Setting up Vector RAG environment..."
+	cd $(VECTOR_DIR) && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+	@echo "✅ All dependencies installed successfully!"
 
 markdown:
 	cd $(MARKDOWN_DIR) && ./.venv/bin/uvicorn app.main:app --reload --port $(MARKDOWN_PORT)
