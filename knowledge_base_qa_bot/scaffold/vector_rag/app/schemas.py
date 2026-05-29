@@ -14,6 +14,7 @@ class IndexResponse(BaseModel):
 class ChatRequest(BaseModel):
     query: str
     provider: ProviderMode = "gemini"
+    session_id: str
 
 
 class SourceInfo(BaseModel):
@@ -26,3 +27,36 @@ class SourceInfo(BaseModel):
 class ChatResponse(BaseModel):
     answer: str
     sources: list[SourceInfo]
+
+
+class MemoryLogEntry(BaseModel):
+    question: str
+    answer: str
+    status: str
+
+
+class MemoryCompactRequest(BaseModel):
+    session_id: str
+    entries: list[MemoryLogEntry] = []
+
+
+class MemoryCompactResponse(BaseModel):
+    ok: bool
+    previous_session_id: str
+    buffers_flushed: int
+    message: str
+
+
+class MemoryDreamRequest(BaseModel):
+    provider: ProviderMode = "gemini"
+
+
+class MemoryDreamResponse(BaseModel):
+    logs_scanned: int
+    valid_blocks: int
+    rejected_blocks_removed: int
+    processed_session_ids: list[str]
+    wiki_updated: bool
+    kept_blocks: int
+    compacted_files: int
+    deleted_files: int

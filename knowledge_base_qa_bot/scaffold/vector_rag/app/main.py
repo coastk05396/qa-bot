@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .indexer import load_vector_index
+from .memory import ensure_memory_directories
 from .routes import router
 
 app = FastAPI(title="Vector RAG Knowledge Base Q&A Bot")
@@ -17,6 +18,7 @@ app.include_router(router)
 
 @app.on_event("startup")
 def load_persisted_index():
+    ensure_memory_directories()
     try:
         load_vector_index()
     except Exception as exc:
