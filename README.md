@@ -1,13 +1,7 @@
 # qa-bot
 
-Run from the repo root with `make`:
+<img width="1500" height="1032" alt="twat1_middle" src="https://github.com/user-attachments/assets/2287759a-b964-47cd-b51b-8948a6146a1f" />
 
-```bash
-make install
-make markdown
-make vector
-make run-both
-```
 ## 3-Tier RAG Memory System
 ```
 ( User asks Question )
@@ -36,7 +30,14 @@ make run-both
 | **`L2`** | **Episodic Memory**| Compacted raw Q+A logs. Flushed from L1 for short-term daily storage. | `.kb/logs/YYYY-MM-DD.md` |
 | **`L3`** | **Semantic Memory**| Dreamed wiki memory. Distilled persistent knowledge ready for RAG indexing. | `.kb/wiki/index.md` |
 
+Run from the repo root with `make`:
 
+```bash
+make install
+make markdown
+make vector
+make run-both
+```
 
 
 ## Gemini-Key
