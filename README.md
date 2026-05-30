@@ -26,7 +26,7 @@
 
 | Tier | Component | Description | Storage Path |
 | :--- | :--- | :--- | :--- |
-| **`L1`** | **Short Memory** | Active in-browser session buffer. Cleared upon clicking `Compact Session` or the trash button to log daily conversation. | *Frontend (Browser)* |
+| **`L1`** | **Short Memory** | Active in-browser session buffer. Cleared upon clicking `Compact Session` or the trash button to log daily conversation. | *Frontend (Browser) + .kb/logs/YYYY-MM-DD.md* |
 | **`L2`** | **Dreaming** | A background ETL process that clusters L1 logs using **embedding similarity**. When similar queries hit 3+ times, an LLM structures and promotes them. | *Processing Pipeline* |
 | **`L3`** | **Wiki** | Persistent semantic memory. Distilled, structured knowledge ready for backend RAG indexing and future retrieval. | `.kb/wiki/index.md` |
 
